@@ -4,668 +4,368 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>آمِن - منصة الفيديوهات العائلية الآمنة</title>
-    <meta name="description" content="محتوى تعليمي وترفيهي آمن 100% للأطفال والعائلة - فيديوهات منتقاة بعناية">
+    <meta name="description" content="منصة فيديوهات آمنة 100% للأطفال والعائلة - محتوى إسلامي وتعليمي بدون إعلانات أو روابط خارجية">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        * { 
-            font-family: 'Cairo', sans-serif; 
+        * {
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        body {
             scroll-behavior: smooth;
         }
-        body { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            overflow-x: hidden;
-        }
-        .video-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .video-card:hover {
-            transform: translateY(-8px) scale(1.02);
-        }
+        
         .section {
             display: none;
+            min-height: 100vh;
         }
+        
         .section.active {
             display: block;
         }
+        
+        /* مشغل الفيديو المنبثق */
+        #videoModal {
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+        }
+        
+        #videoModal video {
+            max-width: 90vw;
+            max-height: 80vh;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* مشغل الشورتس */
         #shortsPlayer {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #000;
-            z-index: 9999;
+            inset: 0;
+            background: black;
+            z-index: 10000;
             display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
+        
         #shortsPlayer.active {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            opacity: 1;
         }
+        
         .shorts-video-container {
             position: relative;
             width: 100%;
             max-width: 500px;
             height: 100vh;
-            background: #000;
+            margin: 0 auto;
+            background: black;
         }
-        .shorts-video-container iframe {
+        
+        .shorts-video-container video {
             width: 100%;
             height: 100%;
-            border: none;
+            object-fit: contain;
         }
-        .shorts-controls {
-            position: absolute;
-            right: 20px;
-            bottom: 100px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            z-index: 10000;
-        }
-        .shorts-btn {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255,255,255,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .shorts-btn:hover {
-            transform: scale(1.1);
-            background: rgba(255,255,255,0.3);
-        }
+        
         .shorts-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 48px;
-            height: 48px;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 10001;
+            background: rgba(255,255,255,0.9);
+            color: black;
+            border: none;
+            width: 3rem;
+            height: 3rem;
             border-radius: 50%;
-            background: rgba(0,0,0,0.6);
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .shorts-nav {
+            position: fixed;
+            right: 50%;
+            transform: translateX(50%);
+            z-index: 10001;
+        }
+        
+        .shorts-nav.top { top: 2rem; }
+        .shorts-nav.bottom { bottom: 8rem; }
+        
+        .shorts-nav button {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.5);
+            color: white;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+        }
+        
+        .shorts-controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 50%;
+            transform: translateX(50%);
+            display: flex;
+            gap: 2rem;
+            z-index: 10001;
+        }
+        
+        .shorts-btn {
+            background: rgba(255,255,255,0.2);
             backdrop-filter: blur(10px);
             color: white;
-            border: 2px solid rgba(255,255,255,0.3);
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 1.5rem;
             cursor: pointer;
-            z-index: 10001;
-            transition: all 0.3s;
-        }
-        .shorts-close:hover {
-            background: rgba(255,0,0,0.8);
-            transform: scale(1.1);
-        }
-        .shorts-nav {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-            z-index: 10000;
-        }
-        .shorts-nav.top {
-            top: 20px;
-        }
-        .shorts-nav.bottom {
-            bottom: 20px;
-        }
-        .shorts-nav button {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
             border: 2px solid rgba(255,255,255,0.3);
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
+        }
+        
+        /* أنيميشن للكروت */
+        .video-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.3);
+        }
+        
+        /* فلاتر الفئات */
+        .filter-btn {
             transition: all 0.3s;
         }
-        .shorts-nav button:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.1);
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #9333ea 0%, #db2777 100%);
+            color: white;
         }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="bg-gradient-to-br from-purple-50 via-white to-pink-50">
 
-    <!-- شريط التنقل -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-lg border-b border-white/20">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex items-center justify-between">
-                <div class="text-2xl font-bold text-white flex items-center gap-2">
-                    <span class="text-3xl">🛡️</span>
-                    <span>آمِن</span>
-                </div>
-                <div class="flex gap-6">
-                    <a href="#hero" onclick="showPage('hero')" class="text-white hover:text-purple-200 transition-colors font-semibold">🏠 الرئيسية</a>
-                    <a href="#videos" onclick="showPage('videos')" class="text-white hover:text-purple-200 transition-colors font-semibold">🎬 الفيديوهات</a>
-                    <a href="#shorts" onclick="showPage('shorts')" class="text-white hover:text-purple-200 transition-colors font-semibold">📱 شورتس</a>
-                    <a href="#about" onclick="showPage('about')" class="text-white hover:text-purple-200 transition-colors font-semibold">ℹ️ من نحن</a>
-                </div>
+    <!-- Nav Bar -->
+    <nav class="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md shadow-lg z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
+                🛡️ آمِن
+            </div>
+            <div class="flex gap-6">
+                <a href="#hero" onclick="showPage('hero')" class="font-bold text-gray-700 hover:text-purple-600 transition-colors">الرئيسية</a>
+                <a href="#videos" onclick="showPage('videos')" class="font-bold text-gray-700 hover:text-purple-600 transition-colors">الفيديوهات</a>
+                <a href="#shorts" onclick="showPage('shorts')" class="font-bold text-gray-700 hover:text-purple-600 transition-colors">الشورتس</a>
+                <a href="#about" onclick="showPage('about')" class="font-bold text-gray-700 hover:text-purple-600 transition-colors">من نحن</a>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section id="hero" class="section active min-h-screen flex items-center justify-center text-center px-6 pt-20">
-        <div class="max-w-4xl mx-auto text-white">
-            <div class="text-7xl mb-6 animate-bounce">🛡️</div>
-            <h1 class="text-6xl font-bold mb-6 leading-tight">
-                محتوى <span class="text-yellow-300">آمِن</span> لعائلتك
-            </h1>
-            <p class="text-2xl mb-12 text-purple-100 leading-relaxed">
-                مكتبة شاملة من الفيديوهات التعليمية والترفيهية الآمنة 100%<br>
-                لأطفالك وعائلتك - كل المحتوى منتقى بعناية فائقة
-            </p>
-            <div class="flex gap-6 justify-center flex-wrap">
-                <a href="#videos" onclick="showPage('videos')" class="bg-white text-purple-600 px-10 py-5 rounded-full text-xl font-bold hover:bg-yellow-300 hover:text-purple-900 transition-all transform hover:scale-105 shadow-2xl">
-                    🎬 استكشف الفيديوهات
-                </a>
-                <a href="#shorts" onclick="showPage('shorts')" class="bg-purple-500/30 backdrop-blur-lg text-white px-10 py-5 rounded-full text-xl font-bold hover:bg-purple-500/50 transition-all transform hover:scale-105 border-2 border-white/30 shadow-2xl">
-                    📱 شاهد الشورتس
-                </a>
+    <section id="hero" class="section active pt-32 pb-20 px-6">
+        <div class="max-w-6xl mx-auto text-center">
+            <div class="mb-8 inline-block">
+                <div class="text-8xl mb-4 animate-bounce">🛡️</div>
             </div>
-            <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 hover:bg-white/20 transition-all">
+            <h1 class="text-6xl font-black mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600">
+                محتوى <span class="underline decoration-wavy decoration-pink-400">آمِن</span> لعائلتك
+            </h1>
+            <p class="text-2xl text-gray-700 mb-12 max-w-3xl mx-auto leading-relaxed">
+                مكتبة شاملة من الفيديوهات التعليمية والترفيهية <strong class="text-purple-600">بدون إعلانات</strong> أو <strong class="text-pink-600">روابط خارجية</strong>
+            </p>
+            
+            <div class="flex flex-wrap justify-center gap-6 mb-16">
+                <button onclick="showPage('videos')" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-10 py-4 rounded-full text-xl font-bold shadow-2xl hover:shadow-purple-500/50 transform hover:scale-105 transition-all">
+                    🎬 تصفح الفيديوهات
+                </button>
+                <button onclick="showPage('shorts')" class="bg-white text-purple-600 px-10 py-4 rounded-full text-xl font-bold shadow-xl hover:shadow-pink-300/50 border-2 border-purple-200 transform hover:scale-105 transition-all">
+                    📱 شاهد الشورتس
+                </button>
+            </div>
+            
+            <!-- المزايا -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-2 border-purple-100 hover:border-purple-300 transition-all">
+                    <div class="text-5xl mb-4">🔒</div>
+                    <h3 class="text-2xl font-bold mb-3 text-gray-800">خصوصية كاملة</h3>
+                    <p class="text-gray-600">بدون تتبع أو جمع بيانات. الفيديوهات محمّلة مباشرة من خوادمنا الآمنة.</p>
+                </div>
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-2 border-pink-100 hover:border-pink-300 transition-all">
+                    <div class="text-5xl mb-4">🚫</div>
+                    <h3 class="text-2xl font-bold mb-3 text-gray-800">بدون إعلانات</h3>
+                    <p class="text-gray-600">تجربة مشاهدة نظيفة 100%. لا إعلانات، لا اقتراحات مزعجة، لا روابط خارجية.</p>
+                </div>
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-2 border-purple-100 hover:border-purple-300 transition-all">
                     <div class="text-5xl mb-4">✅</div>
-                    <h3 class="text-2xl font-bold mb-3">محتوى منتقى</h3>
-                    <p class="text-purple-100">كل فيديو مراجع يدوياً لضمان السلامة الكاملة</p>
-                </div>
-                <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 hover:bg-white/20 transition-all">
-                    <div class="text-5xl mb-4">📚</div>
-                    <h3 class="text-2xl font-bold mb-3">تنوع هائل</h3>
-                    <p class="text-purple-100">قصص الأنبياء، أناشيد، علوم، تاريخ، ومزيد</p>
-                </div>
-                <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 hover:bg-white/20 transition-all">
-                    <div class="text-5xl mb-4">🎯</div>
-                    <h3 class="text-2xl font-bold mb-3">بدون إعلانات</h3>
-                    <p class="text-purple-100">تجربة نظيفة 100% بدون أي مقاطعات</p>
+                    <h3 class="text-2xl font-bold mb-3 text-gray-800">محتوى مُراجع</h3>
+                    <p class="text-gray-600">كل فيديو مُختار بعناية. محتوى إسلامي وتعليمي مناسب لجميع الأعمار.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- قسم الفيديوهات -->
-    <section id="videos" class="section min-h-screen py-20 px-6">
-        <div class="container mx-auto">
-            <h2 class="text-5xl font-bold text-white text-center mb-4">🎬 مكتبة الفيديوهات</h2>
-            <p class="text-white/80 text-center mb-12 text-xl">محتوى غني ومتنوع لجميع الأعمار</p>
+    <!-- Videos Section -->
+    <section id="videos" class="section py-20 px-6 bg-gradient-to-br from-purple-50 to-pink-50">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
+                🎬 مكتبة الفيديوهات
+            </h2>
+            <p class="text-center text-gray-600 mb-12">
+                محتوى غني ومتنوع لجميع الأعمار
+            </p>
+            
+            <!-- فلاتر الفئات -->
+            <div class="flex flex-wrap justify-center gap-3 mb-12">
+                <button onclick="filterVideos('all')" class="filter-btn active px-6 py-2 rounded-full font-bold transition-all">
+                    الكل
+                </button>
+                <button onclick="filterVideos('quran')" class="filter-btn px-6 py-2 rounded-full bg-white text-purple-600 font-bold hover:bg-purple-100 transition-all">
+                    📖 القرآن الكريم
+                </button>
+                <button onclick="filterVideos('prophets')" class="filter-btn px-6 py-2 rounded-full bg-white text-purple-600 font-bold hover:bg-purple-100 transition-all">
+                    🕌 قصص الأنبياء
+                </button>
+                <button onclick="filterVideos('seerah')" class="filter-btn px-6 py-2 rounded-full bg-white text-purple-600 font-bold hover:bg-purple-100 transition-all">
+                    ☪️ السيرة النبوية
+                </button>
+                <button onclick="filterVideos('science')" class="filter-btn px-6 py-2 rounded-full bg-white text-purple-600 font-bold hover:bg-purple-100 transition-all">
+                    🔬 علوم وتجارب
+                </button>
+                <button onclick="filterVideos('adab')" class="filter-btn px-6 py-2 rounded-full bg-white text-purple-600 font-bold hover:bg-purple-100 transition-all">
+                    🤲 آداب إسلامية
+                </button>
+                <button onclick="filterVideos('history')" class="filter-btn px-6 py-2 rounded-full bg-white text-purple-600 font-bold hover:bg-purple-100 transition-all">
+                    📜 تاريخ إسلامي
+                </button>
+            </div>
             
             <!-- شريط البحث -->
             <div class="max-w-2xl mx-auto mb-12">
                 <input 
                     type="text" 
                     id="searchInput" 
-                    placeholder="🔍 ابحث عن فيديو معين..." 
-                    class="w-full px-6 py-4 rounded-full text-lg bg-white/90 backdrop-blur-lg border-2 border-white/30 focus:border-yellow-300 focus:outline-none transition-all"
-                    onkeyup="searchVideos()"
+                    placeholder="🔍 ابحث عن فيديو..." 
+                    class="w-full px-6 py-4 rounded-2xl border-2 border-purple-200 focus:border-purple-500 focus:outline-none text-lg"
+                    oninput="searchVideos()"
                 >
             </div>
-
+            
+            <!-- شبكة الفيديوهات (ستُملأ بواسطة الروبوت) -->
             <div id="videosGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- قصص الأنبياء -->
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="قصص أنبياء إسلامي تعليمي موسى نوح إبراهيم محمد">
-                    <div class="aspect-video bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-6xl">
-                        📖
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">قصة نبي الله موسى عليه السلام</h3>
-                        <p class="text-purple-100 mb-4">سلسلة قصص الأنبياء - الحلقة 1</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
+                
+                <!-- رسالة انتظار -->
+                <div id="loadingMessage" class="col-span-full text-center py-20">
+                    <div class="inline-block animate-spin text-6xl mb-4">⏳</div>
+                    <h3 class="text-2xl font-bold text-gray-700 mb-2">جارٍ تحميل الفيديوهات...</h3>
+                    <p class="text-gray-500">الروبوت يجلب محتوى آمن لك الآن 🤖</p>
+                    <p class="text-sm text-gray-400 mt-4">سيتم تحميل الفيديوهات خلال 10-15 دقيقة بعد تشغيل الروبوت</p>
                 </div>
-
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="قصص أنبياء إسلامي تعليمي موسى نوح إبراهيم محمد">
-                    <div class="aspect-video bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-6xl">
-                        🌊
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">قصة نبي الله نوح عليه السلام</h3>
-                        <p class="text-purple-100 mb-4">سلسلة قصص الأنبياء - الحلقة 2</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="قصص أنبياء إسلامي تعليمي موسى نوح إبراهيم محمد يوسف">
-                    <div class="aspect-video bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-6xl">
-                        ⭐
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">قصة نبي الله يوسف عليه السلام</h3>
-                        <p class="text-purple-100 mb-4">سلسلة قصص الأنبياء - الحلقة 3</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <!-- أناشيد إسلامية -->
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="أناشيد إسلامية إنشاد دينية طيور الجنة">
-                    <div class="aspect-video bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-6xl">
-                        🎵
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">أنشودة ديني الإسلام</h3>
-                        <p class="text-purple-100 mb-4">أناشيد تربوية هادفة</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="أناشيد إسلامية إنشاد دينية طيور الجنة أمي">
-                    <div class="aspect-video bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-6xl">
-                        💝
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">أنشودة أمي الحبيبة</h3>
-                        <p class="text-purple-100 mb-4">أناشيد عن الأم والعائلة</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <!-- أذكار وأدعية -->
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="أذكار أدعية إسلامية صباح مساء دعاء">
-                    <div class="aspect-video bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-6xl">
-                        🤲
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">أذكار الصباح والمساء للأطفال</h3>
-                        <p class="text-purple-100 mb-4">تعليم الأدعية اليومية</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <!-- علوم بسيطة -->
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="علوم تعليمي تجارب علمية فيزياء كيمياء فضاء كواكب">
-                    <div class="aspect-video bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-6xl">
-                        🔬
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">تجارب علمية ممتعة للأطفال</h3>
-                        <p class="text-purple-100 mb-4">تجارب بسيطة وآمنة</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="علوم فضاء كواكب نجوم فلك شمس قمر تعليمي">
-                    <div class="aspect-video bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-6xl">
-                        🌌
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">رحلة إلى الفضاء - المجموعة الشمسية</h3>
-                        <p class="text-purple-100 mb-4">تعرّف على الكواكب والنجوم</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <!-- قصص تربوية -->
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="قصص تربوية أخلاق قيم تعليم حكاية">
-                    <div class="aspect-video bg-gradient-to-br from-red-400 to-pink-500 flex items-center justify-center text-6xl">
-                        📚
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">قصة الصدق منجاة</h3>
-                        <p class="text-purple-100 mb-4">قصص تربوية هادفة</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <!-- تعليم اللغة العربية -->
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="تعليم لغة عربية حروف كلمات قراءة كتابة">
-                    <div class="aspect-video bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-6xl">
-                        ✍️
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">تعلم الحروف العربية بطريقة ممتعة</h3>
-                        <p class="text-purple-100 mb-4">دروس تفاعلية للأطفال</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <!-- الرياضيات -->
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="رياضيات حساب أرقام جمع طرح ضرب قسمة تعليمي">
-                    <div class="aspect-video bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-6xl">
-                        🔢
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">الأرقام والعمليات الحسابية</h3>
-                        <p class="text-purple-100 mb-4">تعلم الرياضيات بسهولة</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <!-- الجغرافيا -->
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="جغرافيا خريطة دول عالم قارات بلدان تعليمي">
-                    <div class="aspect-video bg-gradient-to-br from-teal-400 to-green-500 flex items-center justify-center text-6xl">
-                        🗺️
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">جولة حول العالم - القارات والدول</h3>
-                        <p class="text-purple-100 mb-4">تعرّف على خريطة العالم</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <!-- التاريخ الإسلامي -->
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="تاريخ إسلامي صحابة خلفاء معارك فتوحات">
-                    <div class="aspect-video bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center text-6xl">
-                        🕌
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">قصص الصحابة - أبو بكر الصديق</h3>
-                        <p class="text-purple-100 mb-4">التاريخ الإسلامي المشرّف</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <!-- الطبيعة والحيوانات -->
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="طبيعة حيوانات بيئة نباتات غابة بحر">
-                    <div class="aspect-video bg-gradient-to-br from-lime-400 to-green-500 flex items-center justify-center text-6xl">
-                        🦁
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">عالم الحيوانات - الغابة</h3>
-                        <p class="text-purple-100 mb-4">اكتشف عجائب الطبيعة</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="طبيعة حيوانات بحر محيطات أسماك دلافين">
-                    <div class="aspect-video bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-6xl">
-                        🐬
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">عالم البحار والمحيطات</h3>
-                        <p class="text-purple-100 mb-4">اكتشف أسرار الأعماق</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <!-- الإبداع والفنون -->
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="رسم فنون إبداع تلوين أشغال يدوية">
-                    <div class="aspect-video bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-6xl">
-                        🎨
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">تعلم الرسم والتلوين</h3>
-                        <p class="text-purple-100 mb-4">دروس فنية بسيطة</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <!-- الصحة والرياضة -->
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="صحة رياضة تمارين حركة نشاط لياقة">
-                    <div class="aspect-video bg-gradient-to-br from-red-400 to-orange-500 flex items-center justify-center text-6xl">
-                        🏃
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">تمارين رياضية ممتعة للأطفال</h3>
-                        <p class="text-purple-100 mb-4">حركة ونشاط صحي</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <!-- الطبخ البسيط -->
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="طبخ وصفات طعام أكل صحي">
-                    <div class="aspect-video bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-6xl">
-                        🍪
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">وصفات بسيطة وصحية للأطفال</h3>
-                        <p class="text-purple-100 mb-4">الطبخ ممتع ومفيد</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <!-- برمجة للأطفال -->
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="برمجة كمبيوتر تقنية أكواد سكراتش scratch">
-                    <div class="aspect-video bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center text-6xl">
-                        💻
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">البرمجة للأطفال - Scratch</h3>
-                        <p class="text-purple-100 mb-4">تعلم البرمجة بطريقة مرحة</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
-
-                <!-- اللغة الإنجليزية -->
-                <div class="video-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-2xl" data-keywords="إنجليزي لغة تعليم english كلمات محادثة">
-                    <div class="aspect-video bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-6xl">
-                        🇬🇧
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">تعلم الإنجليزية بسهولة</h3>
-                        <p class="text-purple-100 mb-4">دروس تفاعلية ممتعة</p>
-                        <button onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ')" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-bold transition-all">
-                            ▶️ شاهد الآن
-                        </button>
-                    </div>
-                </div>
+                
             </div>
-
-            <div id="noResults" class="hidden text-center text-white text-2xl mt-12">
-                <div class="text-6xl mb-4">😔</div>
-                <p>لم نعثر على فيديوهات مطابقة. جرب كلمات أخرى!</p>
+            
+            <!-- رسالة "لا نتائج" -->
+            <div id="noResults" class="hidden col-span-full text-center py-20">
+                <div class="text-6xl mb-4">😕</div>
+                <h3 class="text-2xl font-bold text-gray-700 mb-2">لا توجد نتائج</h3>
+                <p class="text-gray-500">جرّب كلمات بحث أخرى</p>
             </div>
         </div>
     </section>
 
-    <!-- قسم الشورتس -->
-    <section id="shorts" class="section min-h-screen py-20 px-6">
-        <div class="container mx-auto">
-            <h2 class="text-5xl font-bold text-white text-center mb-4">📱 شورتس آمِن</h2>
-            <p class="text-white/80 text-center mb-12 text-xl">فيديوهات قصيرة مليئة بالفائدة</p>
+    <!-- Shorts Section -->
+    <section id="shorts" class="section py-20 px-6 bg-white">
+        <div class="max-w-7xl mx-auto text-center">
+            <h2 class="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600">
+                📱 شورتس آمِن
+            </h2>
+            <p class="text-gray-600 mb-12">
+                فيديوهات قصيرة مليئة بالفائدة
+            </p>
             
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <div class="shorts-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-xl cursor-pointer hover:scale-105 transition-all" onclick="openShorts(0)">
-                    <div class="aspect-[9/16] bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-5xl relative">
-                        🤲
-                        <div class="absolute bottom-4 left-0 right-0 text-center">
-                            <p class="text-white text-sm font-bold px-2">دعاء الصباح</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="shorts-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-xl cursor-pointer hover:scale-105 transition-all" onclick="openShorts(1)">
-                    <div class="aspect-[9/16] bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-5xl relative">
-                        💡
-                        <div class="absolute bottom-4 left-0 right-0 text-center">
-                            <p class="text-white text-sm font-bold px-2">هل تعلم؟</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="shorts-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-xl cursor-pointer hover:scale-105 transition-all" onclick="openShorts(2)">
-                    <div class="aspect-[9/16] bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-5xl relative">
-                        🌱
-                        <div class="absolute bottom-4 left-0 right-0 text-center">
-                            <p class="text-white text-sm font-bold px-2">نصيحة اليوم</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="shorts-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-xl cursor-pointer hover:scale-105 transition-all" onclick="openShorts(3)">
-                    <div class="aspect-[9/16] bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-5xl relative">
-                        ✨
-                        <div class="absolute bottom-4 left-0 right-0 text-center">
-                            <p class="text-white text-sm font-bold px-2">حكمة</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="shorts-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-xl cursor-pointer hover:scale-105 transition-all" onclick="openShorts(4)">
-                    <div class="aspect-[9/16] bg-gradient-to-br from-red-400 to-pink-500 flex items-center justify-center text-5xl relative">
-                        ❤️
-                        <div class="absolute bottom-4 left-0 right-0 text-center">
-                            <p class="text-white text-sm font-bold px-2">قيمة</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="shorts-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-xl cursor-pointer hover:scale-105 transition-all" onclick="openShorts(5)">
-                    <div class="aspect-[9/16] bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-5xl relative">
-                        🎯
-                        <div class="absolute bottom-4 left-0 right-0 text-center">
-                            <p class="text-white text-sm font-bold px-2">هدف</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="shorts-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-xl cursor-pointer hover:scale-105 transition-all" onclick="openShorts(6)">
-                    <div class="aspect-[9/16] bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-5xl relative">
-                        🌟
-                        <div class="absolute bottom-4 left-0 right-0 text-center">
-                            <p class="text-white text-sm font-bold px-2">إلهام</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="shorts-card bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-xl cursor-pointer hover:scale-105 transition-all" onclick="openShorts(7)">
-                    <div class="aspect-[9/16] bg-gradient-to-br from-teal-400 to-green-500 flex items-center justify-center text-5xl relative">
-                        🌈
-                        <div class="absolute bottom-4 left-0 right-0 text-center">
-                            <p class="text-white text-sm font-bold px-2">سعادة</p>
-                        </div>
-                    </div>
-                </div>
+            <button onclick="openShorts()" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-12 py-4 rounded-full text-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all">
+                🎬 شاهد الشورتس
+            </button>
+            
+            <div class="mt-8 text-gray-500 text-sm">
+                <p>🤖 الروبوت يحمّل شورتس جديدة الآن...</p>
+                <p class="text-xs mt-2">ستظهر الشورتس بعد تشغيل الروبوت على Railway</p>
             </div>
         </div>
     </section>
 
-    <!-- قسم "من نحن" -->
-    <section id="about" class="section min-h-screen py-20 px-6">
-        <div class="container mx-auto max-w-4xl">
-            <h2 class="text-5xl font-bold text-white text-center mb-12">ℹ️ من نحن</h2>
+    <!-- About Section -->
+    <section id="about" class="section py-20 px-6 bg-gradient-to-br from-purple-50 to-pink-50">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-12 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
+                ℹ️ من نحن
+            </h2>
             
-            <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-10 border border-white/20 text-white space-y-8">
-                <div>
-                    <h3 class="text-3xl font-bold mb-4 flex items-center gap-3">
-                        <span>🎯</span>
-                        <span>رؤيتنا</span>
-                    </h3>
-                    <p class="text-xl text-purple-100 leading-relaxed">
-                        نسعى لتوفير بيئة رقمية آمنة 100% للأطفال والعائلات، حيث يمكنهم الاستمتاع بمحتوى تعليمي وترفيهي هادف بدون أي قلق على سلامتهم الفكرية والنفسية.
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-3xl shadow-xl">
+                    <div class="text-5xl mb-4">🎯</div>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">رؤيتنا</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        نسعى لتوفير بيئة رقمية آمنة للأطفال والعائلات العربية، حيث يمكنهم الاستمتاع بمحتوى تعليمي وترفيهي <strong>بدون قلق</strong> من الإعلانات المزعجة أو المحتوى غير المناسب.
                     </p>
                 </div>
-
-                <div>
-                    <h3 class="text-3xl font-bold mb-4 flex items-center gap-3">
-                        <span>🔒</span>
-                        <span>معاييرنا</span>
-                    </h3>
-                    <ul class="text-xl text-purple-100 space-y-3">
-                        <li class="flex items-start gap-3">
-                            <span class="text-2xl">✅</span>
-                            <span>كل فيديو يُراجع يدوياً من فريق متخصص</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="text-2xl">✅</span>
-                            <span>لا إعلانات ولا محتوى تجاري</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="text-2xl">✅</span>
-                            <span>محتوى يتماشى مع القيم الإسلامية والعربية</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="text-2xl">✅</span>
-                            <span>تنوع شامل: تعليمي، ديني، ترفيهي، علمي</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h3 class="text-3xl font-bold mb-4 flex items-center gap-3">
-                        <span>💌</span>
-                        <span>تواصل معنا</span>
-                    </h3>
-                    <p class="text-xl text-purple-100">
-                        نرحب باقتراحاتكم وملاحظاتكم. معاً نبني مستقبلاً آمناً لأطفالنا.
+                
+                <div class="bg-white p-8 rounded-3xl shadow-xl">
+                    <div class="text-5xl mb-4">🔧</div>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">كيف نعمل</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        نستخدم روبوت ذكي يبحث ويحمّل الفيديوهات المناسبة، ثم يرفعها على خوادمنا الخاصة. <strong>لا نستخدم YouTube أو أي منصة خارجية</strong> في عرض المحتوى.
                     </p>
-                    <div class="mt-6">
-                        <a href="mailto:contact@amen-platform.com" class="inline-block bg-white text-purple-600 px-8 py-4 rounded-full text-lg font-bold hover:bg-yellow-300 hover:text-purple-900 transition-all">
-                            📧 راسلنا
-                        </a>
-                    </div>
+                </div>
+                
+                <div class="bg-white p-8 rounded-3xl shadow-xl">
+                    <div class="text-5xl mb-4">👨‍👩‍👧‍👦</div>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">للعائلات</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        كل فيديو مُختار بعناية ليكون مناسباً للأطفال من جميع الأعمار. محتوى إسلامي، تعليمي، وترفيهي <strong>بدون موسيقى</strong> أو مشاهد غير لائقة.
+                    </p>
+                </div>
+                
+                <div class="bg-white p-8 rounded-3xl shadow-xl">
+                    <div class="text-5xl mb-4">🤝</div>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">مجاني للجميع</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        نؤمن بأن المحتوى الآمن <strong>حق للجميع</strong>. لذلك، المنصة مجانية تماماً بدون اشتراكات أو رسوم مخفية.
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-black/30 backdrop-blur-lg border-t border-white/20 py-12 text-center text-white">
-        <div class="container mx-auto px-6">
-            <div class="text-5xl mb-6">🛡️</div>
+    <footer class="bg-gradient-to-r from-purple-900 to-pink-900 text-white py-12 px-6">
+        <div class="max-w-6xl mx-auto text-center">
+            <div class="text-4xl mb-4">🛡️</div>
             <h3 class="text-3xl font-bold mb-4">آمِن</h3>
-            <p class="text-lg text-purple-200 mb-6">منصة الفيديوهات العائلية الآمنة</p>
-            <p class="text-sm text-purple-300">© 2024 آمِن. جميع الحقوق محفوظة.</p>
-            <div class="mt-6 flex gap-4 justify-center">
-                <a href="#" class="text-white hover:text-yellow-300 transition-colors">📘 الشروط</a>
-                <a href="#" class="text-white hover:text-yellow-300 transition-colors">🔒 الخصوصية</a>
-                <a href="#" class="text-white hover:text-yellow-300 transition-colors">📞 تواصل</a>
-            </div>
+            <p class="text-purple-200 mb-8">منصة الفيديوهات العائلية الآمنة</p>
+            <p class="text-sm text-purple-300">
+                © 2024 آمِن. جميع الحقوق محفوظة. | مُصمم بـ ❤️ للعائلات العربية
+            </p>
         </div>
     </footer>
 
     <!-- مشغل الفيديو المنبثق -->
-    <div id="videoPlayer" class="fixed inset-0 bg-black/95 backdrop-blur-lg z-50 hidden flex items-center justify-center p-6">
-        <div class="relative w-full max-w-5xl">
-            <button onclick="closePlayer()" class="absolute -top-12 right-0 text-white text-4xl hover:text-red-500 transition-colors">
-                ✕
-            </button>
-            <div class="aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl">
-                <iframe id="videoFrame" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
-        </div>
+    <div id="videoModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-lg items-center justify-center p-4">
+        <button onclick="closeVideo()" class="absolute top-6 right-6 text-white text-4xl font-bold hover:text-purple-400 transition-colors z-50">
+            ✕
+        </button>
+        <video id="videoElement" controls autoplay class="rounded-2xl" controlsList="nodownload">
+            <source src="" type="video/mp4">
+            متصفحك لا يدعم تشغيل الفيديو.
+        </video>
     </div>
 
     <!-- مشغل الشورتس -->
@@ -677,7 +377,9 @@
         </div>
 
         <div class="shorts-video-container">
-            <iframe id="shortsFrame" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <video id="shortsVideo" controls autoplay loop class="w-full h-full" controlsList="nodownload">
+                <source src="" type="video/mp4">
+            </video>
         </div>
 
         <div class="shorts-controls">
@@ -695,17 +397,8 @@
     </div>
 
     <script>
-        // قائمة الشورتس
-        const shortsData = [
-            'https://www.youtube.com/embed/dQw4w9WgXcQ',
-            'https://www.youtube.com/embed/dQw4w9WgXcQ',
-            'https://www.youtube.com/embed/dQw4w9WgXcQ',
-            'https://www.youtube.com/embed/dQw4w9WgXcQ',
-            'https://www.youtube.com/embed/dQw4w9WgXcQ',
-            'https://www.youtube.com/embed/dQw4w9WgXcQ',
-            'https://www.youtube.com/embed/dQw4w9WgXcQ',
-            'https://www.youtube.com/embed/dQw4w9WgXcQ'
-        ];
+        // قائمة الشورتس (ستُملأ بواسطة الروبوت)
+        const shortsData = [];
 
         let currentShortIndex = 0;
 
@@ -715,18 +408,61 @@
                 section.classList.remove('active');
             });
             document.getElementById(pageId).classList.add('active');
-            window.scrollTo(0, 0);
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         // مشغل الفيديو الرئيسي
-        function playVideo(url) {
-            document.getElementById('videoFrame').src = url + '?autoplay=1';
-            document.getElementById('videoPlayer').classList.remove('hidden');
+        function playVideoInModal(url) {
+            const modal = document.getElementById('videoModal');
+            const video = document.getElementById('videoElement');
+            const source = video.querySelector('source');
+            
+            source.src = url;
+            video.load();
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            video.play();
         }
 
-        function closePlayer() {
-            document.getElementById('videoPlayer').classList.add('hidden');
-            document.getElementById('videoFrame').src = '';
+        function closeVideo() {
+            const modal = document.getElementById('videoModal');
+            const video = document.getElementById('videoElement');
+            
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            video.pause();
+            video.querySelector('source').src = '';
+        }
+
+        // فلترة حسب الفئة
+        function filterVideos(category) {
+            const cards = document.querySelectorAll('.video-card');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            // تحديث أزرار الفلترة
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // إظهار/إخفاء الكروت
+            let visibleCount = 0;
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // إظهار رسالة "لا نتائج" إذا لزم
+            const noResults = document.getElementById('noResults');
+            const loading = document.getElementById('loadingMessage');
+            
+            if (visibleCount === 0 && loading.classList.contains('hidden')) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
         }
 
         // البحث
@@ -736,10 +472,10 @@
             let visibleCount = 0;
 
             cards.forEach(card => {
-                const keywords = card.dataset.keywords.toLowerCase();
                 const title = card.querySelector('h3').textContent.toLowerCase();
+                const category = card.dataset.category.toLowerCase();
                 
-                if (query === '' || keywords.includes(query) || title.includes(query)) {
+                if (query === '' || title.includes(query) || category.includes(query)) {
                     card.style.display = 'block';
                     visibleCount++;
                 } else {
@@ -747,24 +483,45 @@
                 }
             });
 
-            document.getElementById('noResults').classList.toggle('hidden', visibleCount > 0);
+            const noResults = document.getElementById('noResults');
+            const loading = document.getElementById('loadingMessage');
+            
+            if (visibleCount === 0 && loading.classList.contains('hidden')) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
         }
 
         // مشغل الشورتس
-        function openShorts(index) {
+        function openShorts(index = 0) {
+            if (shortsData.length === 0) {
+                alert('⏳ الشورتس قيد التحميل. يرجى المحاولة بعد قليل.');
+                return;
+            }
+            
             currentShortIndex = index;
             loadShort(currentShortIndex);
             document.getElementById('shortsPlayer').classList.add('active');
         }
 
         function closeShorts() {
-            document.getElementById('shortsPlayer').classList.remove('active');
-            document.getElementById('shortsFrame').src = '';
+            const player = document.getElementById('shortsPlayer');
+            const video = document.getElementById('shortsVideo');
+            
+            player.classList.remove('active');
+            video.pause();
+            video.querySelector('source').src = '';
         }
 
         function loadShort(index) {
             if (index >= 0 && index < shortsData.length) {
-                document.getElementById('shortsFrame').src = shortsData[index] + '?autoplay=1';
+                const video = document.getElementById('shortsVideo');
+                const source = video.querySelector('source');
+                
+                source.src = shortsData[index];
+                video.load();
+                video.play();
             }
         }
 
@@ -810,6 +567,12 @@
                     likeShort();
                 }
             }
+            
+            // إغلاق المودال بـ Escape
+            if (e.key === 'Escape') {
+                closeVideo();
+                closeShorts();
+            }
         });
 
         // Touch swipe للجوال
@@ -830,22 +593,12 @@
             
             if (Math.abs(swipeDistance) > 50) {
                 if (swipeDistance > 0) {
-                    // Swipe up = next
                     nextShort();
                 } else {
-                    // Swipe down = prev
                     prevShort();
                 }
             }
         }
-
-        // إغلاق المشغلات عند الضغط على Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closePlayer();
-                closeShorts();
-            }
-        });
     </script>
 
 </body>
